@@ -121,6 +121,7 @@ int main()
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
+		winMain(win);
 
 		ImGui::Render();
 		int dispW, dispH;
