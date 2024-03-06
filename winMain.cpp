@@ -2,15 +2,21 @@
 #include <imgui.h>
 #include <implot.h>
 
-void winSignal(bool *);
+#include <Signal.hpp>
+#include <Noise.hpp>
+
+#define BTN_SETUP(title, sig) \
+	if (ImGui::Button(title)) sig.OpenSetup(); \
+	if (sig.isSetupOpen()) sig.Setup();
 
 void winMain(GLFWwindow *win)
 {
 	ImGui::Begin("Последовательный обнаружитель сигнала");
+	static Signal signal;
+	static Noise noise;
 
-	static bool winSignalOpen = false;
-	if (ImGui::Button("Сигнал")) winSignalOpen = true;
-	if (winSignalOpen) winSignal(&winSignalOpen);
+	BTN_SETUP("Сигнал", signal)
+	BTN_SETUP("Шум", noise)
 
 	if (ImGui::Button("Закрыть")) {
 		glfwSetWindowShouldClose(win, true);

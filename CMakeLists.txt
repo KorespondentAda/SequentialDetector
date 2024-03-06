@@ -10,7 +10,6 @@ add_executable(${PROJECT_NAME}
 # My files
 	main.cpp
 	winMain.cpp
-	winSignal.cpp
 # ImGui
 	imgui/imgui.cpp
 	imgui/imgui_demo.cpp
