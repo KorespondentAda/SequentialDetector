@@ -23,6 +23,8 @@ void winMain(GLFWwindow *);
 #define WIN_NAME "Последовательный обнаружитель"
 #define WIN_WIDTH 640
 #define WIN_HEIGTH 480
+#define FONT_FILENAME "DroidSans.ttf"
+#define FONT_SIZE 14
 #define ass(exp, msg) assert(((void)msg, exp))
 
 namespace ImGui {
@@ -107,6 +109,8 @@ int main()
 	ImGui_ImplOpenGL3_Init(nullptr);
 	ImGuiIO &io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.Fonts->AddFontFromFileTTF(FONT_FILENAME, FONT_SIZE,
+			nullptr, io.Fonts->GetGlyphRangesCyrillic());
 	std::cerr << "ImGui settings initialized" << std::endl;
 
 	while (!glfwWindowShouldClose(win)) {

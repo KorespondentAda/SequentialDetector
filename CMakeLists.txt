@@ -37,3 +37,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 target_compile_definitions(${PROJECT_NAME} PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
 add_compile_options(-Wall)
 
+add_custom_command(
+	TARGET ${PROJECT_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy
+		${CMAKE_SOURCE_DIR}/DroidSans.ttf
+		${CMAKE_BINARY_DIR}/DroidSans.ttf
+)
+
