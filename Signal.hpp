@@ -52,8 +52,8 @@ public:
 		static int signalType = 0;
 
 		static bool changed = true;
-		static float freq = 0;
-		static float amp = 1;
+		static float freq = 0.02;
+		static float amp = 3;
 		static float phase = 0;
 
 		// TODO change to setting Detector values
@@ -86,5 +86,7 @@ public:
 
 		ImGui::End();
 	}
+
+	float operator[](int i) { return y[i]; }
 };
 

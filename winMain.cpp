@@ -2,21 +2,14 @@
 #include <imgui.h>
 #include <implot.h>
 
-#include <Signal.hpp>
-#include <Noise.hpp>
-
-#define BTN_SETUP(title, sig) \
-	if (ImGui::Button(title)) sig.OpenSetup(); \
-	if (sig.isSetupOpen()) sig.Setup();
+#include <DetectorSequential.hpp>
 
 void winMain(GLFWwindow *win)
 {
 	ImGui::Begin("Последовательный обнаружитель сигнала");
-	static Signal signal;
-	static Noise noise;
-
-	BTN_SETUP("Сигнал", signal)
-	BTN_SETUP("Шум", noise)
+	static DetectorSequential detector;
+	if (ImGui::Button("Настройки")) detector.Open();
+	if (detector.isOpen()) detector.Show();
 
 	if (ImGui::Button("Закрыть")) {
 		glfwSetWindowShouldClose(win, true);
