@@ -15,8 +15,10 @@ private:
 		static int bins = 50;
 		static bool online = false;
 		if (ImPlot::BeginPlot("Гистограммы")) {
+			float borders[] = {detector.GetBorderA(), detector.GetBorderB()};
 			ImPlot::PlotHistogram("Сигнал есть", y.data(), y.size(), bins, 1, ImPlotRange(), ImPlotHistogramFlags_Density);
 			ImPlot::PlotHistogram("Сигнала нет", n.data(), n.size(), bins, 1, ImPlotRange(), ImPlotHistogramFlags_Density);
+			ImPlot::PlotInfLines("Пороги", borders, 2);
 			ImPlot::EndPlot();
 		}
 		if (ImGui::Button("Построить") || online) {

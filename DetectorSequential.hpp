@@ -124,13 +124,13 @@ private:
 		ImGui::SeparatorText("Шум");
 		n.Show("Шум", true);
 		ImGui::SeparatorText("Обнаружитель");
-		ImGui::SliderFloat3("Значения ОСШ", qvals, 0.1, 10, "%.2f");
-		if (ImGui::SliderFloat("Расчётное ОСШ", &q0, 0, 5)) {
+		ImGui::SliderFloat3("Значения ОСШ", qvals, 0.1, 10, "%.2f", ImGuiSliderFlags_Logarithmic);
+		if (ImGui::SliderFloat("Расчётное ОСШ", &q0, 0, 10)) {
 			makeE(q0);
 		}
 		q0 = sqrt(s().GetEnergy() / n().GetEnergy());
-		ImGui::SliderFloat("Вероятность ЛТ", &α, 0, 1);
-		ImGui::SliderFloat("Вероятность ПС", &β, 0, 1);
+		ImGui::SliderFloat("Вероятность ЛТ", &α, 0.001f, 1, "%.3f", ImGuiSliderFlags_Logarithmic);
+		ImGui::SliderFloat("Вероятность ПС", &β, 0.001f, 1, "%.3f", ImGuiSliderFlags_Logarithmic);
 		ImGui::SliderInt("Максимальный объём выборки", &nmax, 1, 100);
 		ImGui::SliderInt("Число опытов", &expCount, 100, 10000);
 	}
@@ -159,5 +159,9 @@ public:
 	{
 		return s().Generate(count, time_step);
 	}
+
+	float GetBorderA() { return log10f((1 - β) / α) * sqrt(n().GetEnergy()) / q0 + (q0 / 2); }
+
+	float GetBorderB() { return log10f(β / (1 - α)) * sqrt(n().GetEnergy()) / q0 + (q0 / 2); }
 };
 
