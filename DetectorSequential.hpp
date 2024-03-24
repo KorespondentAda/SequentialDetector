@@ -21,41 +21,58 @@ private:
 	// Modelling results
 	float meanCount;
 	float meanDetects;
+	std::vector<float> as;
+	std::vector<float> bs;
+	std::vector<float> zs;
 	std::vector<float> qs;
 	std::vector<float> ns;
 	std::vector<float> ps;
 
-	void measure()
+	template<bool rec = false>
+	int detect()
 	{
 		float σ = sqrt(n().GetEnergy());
 		float E = s().GetEnergy();
-		float A0 = log10f((1 - β) / α) * σ / q0;
-		float B0 = log10f(β / (1 - α)) * σ / q0;
+		float A = log10f((1 - β) / α) * σ / q0;
+		float B = log10f(β / (1 - α)) * σ / q0;
 		float borderStep = E / 2;
+		float t = 0, Z = 0;
+		if (rec) {
+			zs.clear();
+			as.clear();
+			bs.clear();
+		}
+		for (int i = 0; i < nmax; i++) {
+			float sp = s().Generate(t);
+			float np = n().Generate(t);
+			float y = sp + np;
+			// TODO Calculate in case of other noises
+			float z = y;
+			t += time_step;
+			Z += z;
+			A += borderStep;
+			B += borderStep;
+			if (rec) {
+				zs.push_back(Z);
+				as.push_back(A);
+				bs.push_back(B);
+			}
+			if (Z > A) return  (i+1);
+			if (Z < B) return -(i+1);
+		}
+		const float finalBorder = (A + B) / 2;
+		if (Z > finalBorder) return  nmax;
+		else                 return -nmax;
+	}
+
+	void measure()
+	{
 		int totalCount = 0;
 		int totalDetects = 0;
 		for (int k = 0; k < expCount; k++) {
-			float Z = 0;
-			float A = A0;
-			float B = B0;
-			float t = 0;
-			for (int i = 0; i < nmax; i++) {
-				float sp = s().Generate(t);
-				float np = n().Generate(t);
-				float y = sp + np;
-				// TODO How to properly calculate statistic?
-				//float z = y * sp;
-				float z = y;
-				t += time_step;
-				Z += z;
-				A += borderStep;
-				B += borderStep;
-				if (Z > A || Z < B) {
-					totalCount += (i+1);
-					totalDetects += (Z > A ? 1 : 0);
-					break;
-				}
-			}
+			int d = detect();
+			totalCount += abs(d);
+			if (d > 0) totalDetects++;
 		}
 		meanCount = float(totalCount) / expCount;
 		meanDetects = float(totalDetects) / expCount;
@@ -161,7 +178,11 @@ public:
 	}
 
 	float GetBorderA() { return log10f((1 - β) / α) * sqrt(n().GetEnergy()) / q0 + (q0 / 2); }
-
 	float GetBorderB() { return log10f(β / (1 - α)) * sqrt(n().GetEnergy()) / q0 + (q0 / 2); }
+
+	void MakeStats() { detect<true>(); }
+	const std::vector<float> & GetStats() { return zs; }
+	const std::vector<float> & GetBorderAv() { return as; }
+	const std::vector<float> & GetBorderBv() { return bs; }
 };
 

@@ -31,6 +31,7 @@ private:
 		ImGui::SameLine();
 		ImGui::Checkbox("Перестраивать автоматически", &online);
 		ImGui::SliderInt("Число карманов", &bins, 10, 100);
+		// TODO Slider with `n` to draw hists on specified step
 	}
 
 public:

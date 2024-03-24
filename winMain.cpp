@@ -4,6 +4,7 @@
 
 #include <DetectorSequential.hpp>
 #include <DetectorSequentialHistograms.hpp>
+#include <DetectorSequentialStatistics.hpp>
 
 void winMain(GLFWwindow *win)
 {
@@ -11,9 +12,11 @@ void winMain(GLFWwindow *win)
 
 	static DetectorSequential detector;
 	static DetectorSequentialHistograms hists(detector);
+	static DetectorSequentialStatistics stats(detector);
 
 	detector.Show("Настройки");
 	hists.Show("Гистограммы");
+	stats.Show("Пороги");
 
 	if (ImGui::Button("Закрыть")) {
 		glfwSetWindowShouldClose(win, true);
