@@ -3,13 +3,17 @@
 #include <implot.h>
 
 #include <DetectorSequential.hpp>
+#include <DetectorSequentialHistograms.hpp>
 
 void winMain(GLFWwindow *win)
 {
 	ImGui::Begin("Последовательный обнаружитель сигнала");
+
 	static DetectorSequential detector;
-	if (ImGui::Button("Настройки")) detector.Open();
-	if (detector.isOpen()) detector.Show();
+	static DetectorSequentialHistograms hists(detector);
+
+	detector.Show("Настройки");
+	hists.Show("Гистограммы");
 
 	if (ImGui::Button("Закрыть")) {
 		glfwSetWindowShouldClose(win, true);
