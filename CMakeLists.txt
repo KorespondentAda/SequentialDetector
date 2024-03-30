@@ -6,7 +6,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(OpenGL REQUIRED)
 
-add_executable(${PROJECT_NAME}
 # Compile GLFW in-place
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "GLFW lib only")
 set(GLFW_INSTALL OFF CACHE BOOL "GLFW lib only")
@@ -17,6 +16,7 @@ add_subdirectory(glfw)
 include_directories("${GLFW_SOURCE_DIR}/deps")
 set(GLAD_GL "${GLFW_SOURCE_DIR}/deps/glad/gl.h")
 
+add_executable(${PROJECT_NAME} WIN32
 # My files
 	main.cpp
 	winMain.cpp
@@ -43,9 +43,14 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 	${CMAKE_SOURCE_DIR}/implot/
 	${GLFW_INCLUDE_DIR}
 )
+set(LINK_STATIC "")
+if (WIN32)
+	set(LINK_STATIC "-static")
+endif(WIN32)
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	OpenGL::GL
 	glfw
+	${LINK_STATIC}
 )
 target_compile_definitions(${PROJECT_NAME} PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
 add_compile_options(-Wall)

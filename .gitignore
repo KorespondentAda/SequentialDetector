@@ -1,4 +1,4 @@
-build
+build*
 .ccls-cache
 .vimrc
 compile_commands.json
