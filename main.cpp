@@ -15,6 +15,7 @@
 #include <imgui_impl_opengl3.h>
 #include <implot.h>
 #include <GLFW/glfw3.h>
+#include <FontDroidSans.h>
 
 void winMain(GLFWwindow *);
 
@@ -82,6 +83,18 @@ void term()
 	std::cerr << "GLFW Terminated" << std::endl;
 }
 
+void setupFonts()
+{
+	auto io = ImGui::GetIO();
+	ImFontConfig fontConfig;
+	ImFormatString(fontConfig.Name, IM_ARRAYSIZE(fontConfig.Name),
+			"%s, %.0dpx", "Droid Sans", FONT_SIZE);
+	fontConfig.FontDataOwnedByAtlas = false;
+	io.Fonts->AddFontFromMemoryTTF(FontDroidSans_ttf, FontDroidSans_ttf_len,
+			FONT_SIZE, &fontConfig, io.Fonts->GetGlyphRangesCyrillic());
+	io.Fonts->Build();
+}
+
 int main()
 {
 	init();
@@ -109,8 +122,7 @@ int main()
 	ImGui_ImplOpenGL3_Init(nullptr);
 	ImGuiIO &io = ImGui::GetIO();
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-	io.Fonts->AddFontFromFileTTF(FONT_FILENAME, FONT_SIZE,
-			nullptr, io.Fonts->GetGlyphRangesCyrillic());
+	setupFonts();
 	std::cerr << "ImGui settings initialized" << std::endl;
 
 	while (!glfwWindowShouldClose(win)) {
