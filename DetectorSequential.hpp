@@ -184,5 +184,10 @@ public:
 	const std::vector<float> & GetStats() { return zs; }
 	const std::vector<float> & GetBorderAv() { return as; }
 	const std::vector<float> & GetBorderBv() { return bs; }
+
+	void MakeCharacteristics() { makePlots(qvals); }
+	const std::vector<float> & GetQs() { return qs; }
+	const std::vector<float> & GetNs() { return ns; }
+	const std::vector<float> & GetPs() { return ps; }
 };
 
