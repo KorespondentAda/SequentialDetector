@@ -11,6 +11,7 @@ private:
 	InfoSignal s;
 	NoiseSignal n;
 
+	float qvals[3];
 	float q0;
 	float α;
 	float β;
@@ -31,16 +32,9 @@ private:
 	template<bool rec = false>
 	int detect()
 	{
-		float σ = sqrt(n().GetEnergy());
-		float E = s().GetEnergy();
-		float A = log10f((1 - β) / α) * σ / q0;
-		float B = log10f(β / (1 - α)) * σ / q0;
-		float borderStep = E / 2;
 		float t = 0, Z = 0;
 		if (rec) {
 			zs.clear();
-			as.clear();
-			bs.clear();
 		}
 		for (int i = 0; i < nmax; i++) {
 			float sp = s().Generate(t);
@@ -50,17 +44,13 @@ private:
 			float z = y;
 			t += time_step;
 			Z += z;
-			A += borderStep;
-			B += borderStep;
 			if (rec) {
 				zs.push_back(Z);
-				as.push_back(A);
-				bs.push_back(B);
 			}
-			if (Z > A) return  (i+1);
-			if (Z < B) return -(i+1);
+			if (Z > as[i]) return  (i+1);
+			if (Z < bs[i]) return -(i+1);
 		}
-		const float finalBorder = (A + B) / 2;
+		const float finalBorder = nmax * q0 / 2;
 		if (Z > finalBorder) return  nmax;
 		else                 return -nmax;
 	}
@@ -76,6 +66,23 @@ private:
 		}
 		meanCount = float(totalCount) / expCount;
 		meanDetects = float(totalDetects) / expCount;
+	}
+
+	void genBorders()
+	{
+		as.clear();
+		bs.clear();
+		float σ = sqrt(n().GetEnergy());
+		//float E = s().GetEnergy();
+		float A = log10f((1 - β) / α) * σ / q0;
+		float B = log10f(β / (1 - α)) * σ / q0;
+		float borderStep = q0 / (2 * σ);
+		for (int i = 0; i < nmax; i++) {
+			A += borderStep;
+			B += borderStep;
+			as.push_back(A);
+			bs.push_back(B);
+		}
 	}
 
 	void genQList(float q_start, float q_step, float q_stop)
@@ -99,6 +106,7 @@ private:
 	void makePlots(float qvals[3])
 	{
 		genQList(qvals[0], qvals[1], qvals[2]);
+		genBorders();
 		ns.clear();
 		ps.clear();
 		for (auto q : qs) {
@@ -107,11 +115,11 @@ private:
 			ns.push_back(meanCount);
 			ps.push_back(meanDetects);
 		}
+		makeE(q0);
 	}
 
 	void Setup() override
 	{
-		static float qvals[3] = {0.1, 0.5, 3.0};
 		int length = qs.size();
 
 		// TODO Show q barriers?
@@ -130,22 +138,13 @@ private:
 		}
 		}
 
-		if (ImGui::Button("Построить характеристики"))
-			makePlots(qvals);
-
-		ImGui::Text("Средний объём выборки: %.1f; Вероятность обнаружения: %.2f",
-				meanCount, meanDetects);
-
 		ImGui::SeparatorText("Сигнал");
 		s.Show("Сигнал", true);
 		ImGui::SeparatorText("Шум");
 		n.Show("Шум", true);
 		ImGui::SeparatorText("Обнаружитель");
 		ImGui::SliderFloat3("Значения ОСШ", qvals, 0.1, 10, "%.2f", ImGuiSliderFlags_Logarithmic);
-		if (ImGui::SliderFloat("Расчётное ОСШ", &q0, 0, 10)) {
-			makeE(q0);
-		}
-		q0 = sqrt(s().GetEnergy() / n().GetEnergy());
+		ImGui::SliderFloat("Расчётное ОСШ", &q0, 0, 10)
 		ImGui::SliderFloat("Вероятность ЛТ", &α, 0.001f, 1, "%.3f", ImGuiSliderFlags_Logarithmic);
 		ImGui::SliderFloat("Вероятность ПС", &β, 0.001f, 1, "%.3f", ImGuiSliderFlags_Logarithmic);
 		ImGui::SliderInt("Максимальный объём выборки", &nmax, 1, 100);
@@ -164,7 +163,8 @@ public:
 			expCount(5000),
 			qs(0),
 			ns(0),
-			ps(0)
+			ps(0),
+			qvals{0.1, 0.5, 3.0}
 	{}
 
 	std::vector<float> GetNoise(int count)
@@ -180,7 +180,7 @@ public:
 	float GetBorderA() { return log10f((1 - β) / α) * sqrt(n().GetEnergy()) / q0 + (q0 / 2); }
 	float GetBorderB() { return log10f(β / (1 - α)) * sqrt(n().GetEnergy()) / q0 + (q0 / 2); }
 
-	void MakeStats() { detect<true>(); }
+	void MakeStats() { genBorders(); detect<true>(); }
 	const std::vector<float> & GetStats() { return zs; }
 	const std::vector<float> & GetBorderAv() { return as; }
 	const std::vector<float> & GetBorderBv() { return bs; }
