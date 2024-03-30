@@ -15,14 +15,10 @@ private:
 public:
 	GeneratorNormal(float mean, float stddev) : Generator("Гауссовский"),
 			μ(mean), σ(stddev)
-	{
 #ifndef DEBUG
-		std::random_device rd{};
-		gen{rd()};
-#else
-		gen = std::mt19937{};
+			,gen(std::random_device{}())
 #endif
-	}
+	{}
 
 	virtual std::vector<float> Generate(std::vector<float> t) override
 	{
