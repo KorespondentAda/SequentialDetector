@@ -8,9 +8,7 @@
 
 class DetectorSequential : public WindowControlled {
 private:
-	InfoSignal s;
-	NoiseSignal n;
-
+	// Detection parameters
 	float qvals[3];
 	float q0;
 	float α;
@@ -18,6 +16,10 @@ private:
 	int nmax;
 	int expCount;
 	const float time_step;
+
+	// Signal sources
+	InfoSignal s;
+	NoiseSignal n;
 
 	// Modelling results
 	float meanCount;
@@ -74,8 +76,8 @@ private:
 		bs.clear();
 		float σ = sqrt(n().GetEnergy());
 		//float E = s().GetEnergy();
-		float A = log10f((1 - β) / α) * σ / q0;
-		float B = log10f(β / (1 - α)) * σ / q0;
+		float A = logf((1 - β) / α) * σ / q0;
+		float B = logf(β / (1 - α)) * σ / q0;
 		float borderStep = q0 / (2 * σ);
 		for (int i = 0; i < nmax; i++) {
 			A += borderStep;
@@ -144,7 +146,7 @@ private:
 		n.Show("Шум", true);
 		ImGui::SeparatorText("Обнаружитель");
 		ImGui::SliderFloat3("Значения ОСШ", qvals, 0.1, 10, "%.2f", ImGuiSliderFlags_Logarithmic);
-		ImGui::SliderFloat("Расчётное ОСШ", &q0, 0, 10)
+		ImGui::SliderFloat("Расчётное ОСШ", &q0, 0, 10);
 		ImGui::SliderFloat("Вероятность ЛТ", &α, 0.001f, 1, "%.3f", ImGuiSliderFlags_Logarithmic);
 		ImGui::SliderFloat("Вероятность ПС", &β, 0.001f, 1, "%.3f", ImGuiSliderFlags_Logarithmic);
 		ImGui::SliderInt("Максимальный объём выборки", &nmax, 1, 100);
@@ -177,8 +179,14 @@ public:
 		return s().Generate(count, time_step);
 	}
 
-	float GetBorderA() { return log10f((1 - β) / α) * sqrt(n().GetEnergy()) / q0 + (q0 / 2); }
-	float GetBorderB() { return log10f(β / (1 - α)) * sqrt(n().GetEnergy()) / q0 + (q0 / 2); }
+	float GetBorderA()
+	{
+		return logf((1 - β) / α) * sqrt(n().GetEnergy()) / q0 + (q0 / 2);
+	}
+	float GetBorderB()
+	{
+		return logf(β / (1 - α)) * sqrt(n().GetEnergy()) / q0 + (q0 / 2);
+	}
 
 	void MakeStats() { genBorders(); detect<true>(); }
 	const std::vector<float> & GetStats() { return zs; }
