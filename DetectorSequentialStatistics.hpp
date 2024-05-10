@@ -10,32 +10,48 @@ private:
 
 	virtual void Setup() override
 	{
-		static std::vector<std::vector<float>> s;
-		static std::vector<std::string> names;
+		static std::vector<std::vector<float>> s(0);
+		static std::vector<float> x(0);
+		static std::vector<std::string> names(0);
+		static int statCount = 0;
 		if (ImGui::Button("Построить")) {
 			detector.MakeStats();
-			s.push_back(detector.GetStats());
-			names.push_back("Стат." + std::to_string(s.size()));
+			auto stat = detector.GetStats();
+			s.push_back(stat);
+			names.push_back("Стат." + std::to_string(++statCount));
 		}
 		ImGui::SameLine();
-		if (ImGui::Button("Очистить")) s.clear();
-		if (ImPlot::BeginPlot("Статистика")) {
-			auto a = detector.GetBorderAv();
-			auto b = detector.GetBorderBv();
+		if (ImGui::Button("Очистить")) {
+			s.clear();
+			names.clear();
+			statCount = 0;
+			// TODO Clear line disabling
+		}
+		if (ImPlot::BeginPlot("##Статистика")) {
+			auto a = detector.GetBorderA();
+			auto b = detector.GetBorderB();
+			assert(a.size() == b.size());
+			for (int i = x.size(); i < a.size(); i++) {
+				x.push_back(i+1);
+			}
+			ImPlot::SetupAxes("Шаг обнаружения n", "Значение статистики z");
+			ImPlot::SetupAxisLimitsConstraints(ImAxis_X1, 1, a.size());
+			ImPlot::SetupAxisZoomConstraints(ImAxis_X1, 10, INFINITY);
+			ImPlot::SetupLegend(ImPlotLocation_East, ImPlotLegendFlags_Outside);
 			for (int i = 0; i < s.size(); i++) {
 				ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
-				ImPlot::PlotLine(names[i].c_str(), s[i].data(), s[i].size());
+				ImPlot::PlotLine(names[i].c_str(), x.data(), s[i].data(), s[i].size());
 			}
-			// TODO Сделать жирнее
-			//void SetNextLineStyle(const ImVec4& col, float weight) {
-			// TODO Исправить ось - начать с 1, убрать дробные шаги, подпись,
-			// без отрицательных
-			ImPlot::PlotLine("##Верхний порог", a.data(), a.size());
-			ImPlot::PlotLine("##Нижний порог", b.data(), b.size());
+			ImPlot::SetNextLineStyle(IMPLOT_AUTO_COL, 3.0f);
+			ImPlot::PlotLine("##Верхний порог", x.data(), a.data(), a.size());
+			ImPlot::SetNextLineStyle(IMPLOT_AUTO_COL, 3.0f);
+			ImPlot::PlotLine("##Нижний порог", x.data(), b.data(), b.size());
 			ImPlot::EndPlot();
 		}
-		// TODO Выбор реального ОСШ
-		// ImGui::SliderFloat();
+		const float q0 = detector.GetSnr();
+		static float q = q0;
+		detector.ChangeSnrReal();
+		detector.ChangeBorders();
 	}
 
 public:
