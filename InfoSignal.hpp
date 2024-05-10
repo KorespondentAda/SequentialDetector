@@ -14,34 +14,8 @@ private:
 	virtual void Setup() override
 	{
 		ImGui::TextWrapped("Установка вида обнаруживаемого сигнала и его параметров");
-		static bool plot = false;
-		ImGui::Checkbox("График сигнала", &plot);
-
-		// TODO Delete or move under debug option
-		static bool changed = true;
-		if (plot) {
-			const int length = 100;
-			static float x[length], y[length];
-			auto &g = gen();
-			if (changed) {
-				float t = 0;
-				for (int i = 0; i < length; i++) {
-					x[i] = t;
-					t += time_step;
-					y[i] = g.Generate(x[i]);
-				}
-				changed = false;
-			}
-
-			if (ImPlot::BeginPlot("Искомый сигнал")) {
-				ImPlot::SetupAxes("Время t", "Уровень s(t)");
-				ImPlot::PlotLine("Сигнал", x, y, length);
-				ImPlot::EndPlot();
-			}
-		}
-
-		changed |= gen.Selector("Вид сигнала");
-		changed |= gen.Configure();
+		gen.Selector("Вид сигнала");
+		gen.Configure();
 	}
 
 public:

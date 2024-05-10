@@ -21,7 +21,6 @@ private:
 
 	const std::vector<const char*> getNames()
 	{
-		// TODO Move type to template parameter
 		if (type == 0) {
 			return { gen_0_0.Name() };
 		} else if (type == 1) {
