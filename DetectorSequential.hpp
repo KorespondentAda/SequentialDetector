@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cmath>
-#include <imgui.h>
+#include <imgui.hpp>
 #include <WindowControlled.hpp>
 #include <InfoSignal.hpp>
 #include <NoiseSignal.hpp>
@@ -11,6 +11,7 @@ private:
 	// Detection parameters
 	float qvals[3];
 	float q0;
+	float q;
 	float α;
 	float β;
 	int nmax;
@@ -75,7 +76,6 @@ private:
 		as.clear();
 		bs.clear();
 		float σ = sqrt(n().GetEnergy());
-		//float E = s().GetEnergy();
 		float A = logf((1 - β) / α) * σ / q0;
 		float B = logf(β / (1 - α)) * σ / q0;
 		float borderStep = q0 / (2 * σ);
@@ -100,7 +100,7 @@ private:
 	void makeE(float q)
 	{
 		// q = s / σ  =>  q² = E / σ²  =>  E = q² * σ²
-		float σ2 = sqrt(n().GetEnergy());
+		float σ2 = n().GetEnergy();
 		float E = q * q * σ2;
 		s().SetEnergy(E);
 	}
@@ -120,37 +120,40 @@ private:
 		makeE(q0);
 	}
 
+	void checkConstraints()
+	{
+		float qmin = 0.001;
+		float pmin = 0.001;
+		if (qvals[0] < qmin) qvals[0] = qmin;
+		if (qvals[1] < qmin) qvals[1] = qmin;
+		if (qvals[2] < qmin) qvals[2] = qmin;
+		if (q0 < qmin) q0 = qmin;
+		if (q < qmin) q = qmin;
+		if (α < pmin) α = pmin;
+		if (α > 1) α = 1;
+		if (β < pmin) β = pmin;
+		if (β > 1) β = 1;
+		if (nmax < 1) nmax = 1;
+		if (expCount < 1) expCount = 1;
+	}
+
 	void Setup() override
 	{
 		int length = qs.size();
-
-		// TODO Show q barriers?
-		static bool plots = false;
-		ImGui::Checkbox("Графики характеристик", &plots);
-		if (plots) {
-		if (ImPlot::BeginPlot("Характеристика обнаружения")) {
-			ImPlot::SetupAxes("ОСШ q", "Вероятность ПО p");
-			ImPlot::PlotLine("p(q)", qs.data(), ps.data(), length);
-			ImPlot::EndPlot();
-		}
-		if (ImPlot::BeginPlot("Характеристик выборки")) {
-			ImPlot::SetupAxes("ОСШ q", "Средняя выборка n");
-			ImPlot::PlotLine("n(q)", qs.data(), ns.data(), length);
-			ImPlot::EndPlot();
-		}
-		}
 
 		ImGui::SeparatorText("Сигнал");
 		s.Show("Сигнал", true);
 		ImGui::SeparatorText("Шум");
 		n.Show("Шум", true);
+		q = sqrt(s().GetEnergy() / n().GetEnergy());
 		ImGui::SeparatorText("Обнаружитель");
-		ImGui::SliderFloat3("Значения ОСШ", qvals, 0.1, 10, "%.2f", ImGuiSliderFlags_Logarithmic);
-		ImGui::SliderFloat("Расчётное ОСШ", &q0, 0, 10);
-		ImGui::SliderFloat("Вероятность ЛТ", &α, 0.001f, 1, "%.3f", ImGuiSliderFlags_Logarithmic);
-		ImGui::SliderFloat("Вероятность ПС", &β, 0.001f, 1, "%.3f", ImGuiSliderFlags_Logarithmic);
-		ImGui::SliderInt("Максимальный объём выборки", &nmax, 1, 100);
+		ChangeSnrRange();
+		ImGui::SliderFloat("Расчётное ОСШ", &q0, 0.01, 10);
+		ChangeSnrReal();
+		ChangeBorders();
+		ImGui::SliderInt("Максимальная выборка", &nmax, 1, 100);
 		ImGui::SliderInt("Число опытов", &expCount, 100, 10000);
+		checkConstraints();
 	}
 
 public:
@@ -158,7 +161,13 @@ public:
 			time_step(0.001),
 			s(time_step),
 			n(time_step),
+			meanCount(0),
+			meanDetects(0),
+			as(0),
+			bs(0),
+			zs(0),
 			q0(1),
+			q(q0),
 			α(0.01),
 			β(0.01),
 			nmax(50),
@@ -168,6 +177,8 @@ public:
 			ps(0),
 			qvals{0.1, 0.5, 3.0}
 	{}
+
+	int GetNMax() const { return nmax; }
 
 	std::vector<float> GetNoise(int count)
 	{
@@ -179,23 +190,49 @@ public:
 		return s().Generate(count, time_step);
 	}
 
-	float GetBorderA()
-	{
-		return logf((1 - β) / α) * sqrt(n().GetEnergy()) / q0 + (q0 / 2);
-	}
-	float GetBorderB()
-	{
-		return logf(β / (1 - α)) * sqrt(n().GetEnergy()) / q0 + (q0 / 2);
-	}
 
 	void MakeStats() { genBorders(); detect<true>(); }
 	const std::vector<float> & GetStats() { return zs; }
-	const std::vector<float> & GetBorderAv() { return as; }
-	const std::vector<float> & GetBorderBv() { return bs; }
+	std::vector<float> & GetBorderA()
+	{
+		if (as.empty() || bs.empty()) genBorders();
+		return as;
+	}
+	std::vector<float> & GetBorderB()
+	{
+		if (as.empty() || bs.empty()) genBorders();
+		return bs;
+	}
 
 	void MakeCharacteristics() { makePlots(qvals); }
 	const std::vector<float> & GetQs() { return qs; }
 	const std::vector<float> & GetNs() { return ns; }
 	const std::vector<float> & GetPs() { return ps; }
+
+	void SetSnr(float q) { makeE(q); }
+	float GetSnr() { return q0; }
+
+	void ChangeSnrReal()
+	{
+		if (ImGui::SliderFloat("Реальное ОСШ q", &q, 0.001f, 2*q0, "%.3f")) {
+			SetSnr(q);
+		}
+	}
+
+	void ChangeBorders()
+	{
+		bool bordersChanged = ImGui::SliderFloat("Вероятность ЛТ", &α, 0.001f,
+				1, "%.3f", ImGuiSliderFlags_Logarithmic);
+		bordersChanged |= ImGui::SliderFloat("Вероятность ПС", &β, 0.001f,
+				1, "%.3f", ImGuiSliderFlags_Logarithmic);
+		if (bordersChanged) genBorders();
+	}
+
+	void ChangeSnrRange()
+	{
+		ImGui::SliderFloat3("Значения ОСШ", qvals, 0.01, 5, "%.2f", ImGuiSliderFlags_Logarithmic);
+		//ImGui::SameLine();
+		//ImGui::HelpMarker("Значения, для которых будут строится зависимости: начальное, шаг, конечное.\nРаботает аналогично Matlab-синтаксису `q = start:step:end`");
+	}
 };
 
