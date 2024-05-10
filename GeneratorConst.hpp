@@ -5,7 +5,7 @@
 #include <vector>
 #include <Generator.hpp>
 
-class GeneratorConst : public Generator {
+class GeneratorConst final : public Generator {
 private:
 	float amplitude;
 

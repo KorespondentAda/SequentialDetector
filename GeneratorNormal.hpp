@@ -5,7 +5,7 @@
 #include <Generator.hpp>
 #include <random>
 
-class GeneratorNormal : public Generator {
+class GeneratorNormal final : public Generator {
 private:
 	float μ;
 	float σ;
@@ -35,6 +35,7 @@ public:
 		changed |= ImGui::SliderFloat("Среднее", &μ, -5, 5);
 		changed |= ImGui::SliderFloat("СКО", &σ, 0, 10);
 		if (changed) {
+			if (σ < 0) σ = 0;
 			randn.param(std::normal_distribution<float>::param_type(μ, σ));
 		}
 		return changed;
