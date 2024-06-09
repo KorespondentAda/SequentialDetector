@@ -9,7 +9,7 @@
 
 void winMain(GLFWwindow *win)
 {
-	ImGui::Begin("Последовательный обнаружитель сигнала");
+	ImGui::Begin("Меню");
 
 	static DetectorSequential detector;
 	static DetectorSequentialHistograms hists(detector);
@@ -25,6 +25,9 @@ void winMain(GLFWwindow *win)
 		glfwSetWindowShouldClose(win, true);
 	}
 
+	ImGui::ShowStyleSelector("Стиль");
+
+#ifdef DEBUG
 	static bool demoImgui = false;
 	if (ImGui::Button("Demo ImGui")) demoImgui = true;
 	if (demoImgui) ImGui::ShowDemoWindow(&demoImgui);
@@ -32,6 +35,7 @@ void winMain(GLFWwindow *win)
 	static bool demoImplot = false;
 	if (ImGui::Button("Demo ImPlot")) demoImplot = true;
 	if (demoImplot) ImPlot::ShowDemoWindow(&demoImplot);
+#endif
 
 	ImGui::End();
 }

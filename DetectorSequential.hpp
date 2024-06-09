@@ -111,13 +111,14 @@ private:
 		genBorders();
 		ns.clear();
 		ps.clear();
+		auto qOld = q;
 		for (auto q : qs) {
 			makeE(q);
 			measure();
 			ns.push_back(meanCount);
 			ps.push_back(meanDetects);
 		}
-		makeE(q0);
+		makeE(q = qOld);
 	}
 
 	void checkConstraints()
@@ -128,7 +129,7 @@ private:
 		if (qvals[1] < qmin) qvals[1] = qmin;
 		if (qvals[2] < qmin) qvals[2] = qmin;
 		if (q0 < qmin) q0 = qmin;
-		if (q < qmin) q = qmin;
+		if (q < 0) q = 0;
 		if (α < pmin) α = pmin;
 		if (α > 1) α = 1;
 		if (β < pmin) β = pmin;
@@ -148,15 +149,17 @@ private:
 		q = sqrt(s().GetEnergy() / n().GetEnergy());
 		ImGui::SeparatorText("Обнаружитель");
 		ChangeSnrRange();
-		ImGui::SliderFloat("Расчётное ОСШ", &q0, 0.01, 10);
+		ChangeSnrWait();
 		ChangeSnrReal();
 		ChangeBorders();
-		ImGui::SliderInt("Максимальная выборка", &nmax, 1, 100);
-		ImGui::SliderInt("Число опытов", &expCount, 100, 10000);
+		ChangeNMax();
+		ChangeExpCount();
 		checkConstraints();
 	}
 
 public:
+	using Samples = std::vector<float>;
+
 	DetectorSequential() : WindowControlled("Последовательный обнаружитель"),
 			time_step(0.001),
 			s(time_step),
@@ -180,59 +183,71 @@ public:
 
 	int GetNMax() const { return nmax; }
 
-	std::vector<float> GetNoise(int count)
+	Samples GetNoise(int count)
 	{
 		return n().Generate(count, time_step);
 	}
-
-	std::vector<float> GetSignal(int count)
+	Samples GetSignal(int count)
 	{
 		return s().Generate(count, time_step);
 	}
 
-
 	void MakeStats() { genBorders(); detect<true>(); }
-	const std::vector<float> & GetStats() { return zs; }
-	std::vector<float> & GetBorderA()
+	const Samples & GetStats() { return zs; }
+	const Samples & GetBorderA()
 	{
 		if (as.empty() || bs.empty()) genBorders();
 		return as;
 	}
-	std::vector<float> & GetBorderB()
+	const Samples & GetBorderB()
 	{
 		if (as.empty() || bs.empty()) genBorders();
 		return bs;
 	}
+	const Samples & GetBorderA() const { return as; }
+	const Samples & GetBorderB() const { return bs; }
 
 	void MakeCharacteristics() { makePlots(qvals); }
-	const std::vector<float> & GetQs() { return qs; }
-	const std::vector<float> & GetNs() { return ns; }
-	const std::vector<float> & GetPs() { return ps; }
+	const Samples & GetQs() const { return qs; }
+	const Samples & GetNs() const { return ns; }
+	const Samples & GetPs() const { return ps; }
 
 	void SetSnr(float q) { makeE(q); }
-	float GetSnr() { return q0; }
-
-	void ChangeSnrReal()
-	{
-		if (ImGui::SliderFloat("Реальное ОСШ q", &q, 0.001f, 2*q0, "%.3f")) {
-			SetSnr(q);
-		}
-	}
-
-	void ChangeBorders()
-	{
-		bool bordersChanged = ImGui::SliderFloat("Вероятность ЛТ", &α, 0.001f,
-				1, "%.3f", ImGuiSliderFlags_Logarithmic);
-		bordersChanged |= ImGui::SliderFloat("Вероятность ПС", &β, 0.001f,
-				1, "%.3f", ImGuiSliderFlags_Logarithmic);
-		if (bordersChanged) genBorders();
-	}
+	float GetSnr() const { return q0; }
 
 	void ChangeSnrRange()
 	{
-		ImGui::SliderFloat3("Значения ОСШ", qvals, 0.01, 5, "%.2f", ImGuiSliderFlags_Logarithmic);
+		ImGui::SliderFloat3("Значения ОСШ", qvals, 0.00, 5, "%.3f", ImGuiSliderFlags_Logarithmic);
+		if (qvals[1] < 0.001) qvals[1] = 0.001;
 		//ImGui::SameLine();
 		//ImGui::HelpMarker("Значения, для которых будут строится зависимости: начальное, шаг, конечное.\nРаботает аналогично Matlab-синтаксису `q = start:step:end`");
+	}
+	void ChangeSnrWait()
+	{
+		ImGui::SliderFloat("Расчётное ОСШ", &q0, 0.01, 10);
+	}
+	void ChangeSnrReal()
+	{
+		if (ImGui::SliderFloat("Реальное ОСШ q", &q, 0.0f, 2*q0, "%.3f")) {
+			SetSnr(q);
+		}
+	}
+	void ChangeBorders()
+	{
+		bool bordersChanged = ImGui::SliderFloat("Вероятность ЛТ", &α,
+				0.001f, 1, "%.3f", ImGuiSliderFlags_Logarithmic);
+		bordersChanged |= ImGui::SliderFloat("Вероятность ПС", &β,
+				0.001f, 1, "%.3f", ImGuiSliderFlags_Logarithmic);
+		if (bordersChanged) genBorders();
+	}
+	void ChangeNMax()
+	{
+		ImGui::SliderInt("Максимальная выборка", &nmax,
+				1, 10000, "%d", ImGuiSliderFlags_Logarithmic);
+	}
+	void ChangeExpCount()
+	{
+		ImGui::SliderInt("Число опытов", &expCount, 100, 10000);
 	}
 };
 

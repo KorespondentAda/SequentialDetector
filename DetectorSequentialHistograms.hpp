@@ -36,13 +36,14 @@ private:
 			s = detector.GetSignal(count);
 			n = detector.GetNoise(count);
 			for (int i = 0; i < count; i++) {
-				y[i] = s[i] + n[i];
+				y[i] = watchLen * s[i] + n[i];
 			}
 		}
 		ImGui::SameLine();
 		ImGui::Checkbox("Перестраивать автоматически", &online);
 		ImGui::SliderInt("Число карманов", &bins, 10, 100);
-		ImGui::SliderInt("Объём выборки", &watchLen, 1, watchLenMax);
+		ImGui::SliderInt("Шаг обнаружения", &watchLen, 1, watchLenMax);
+		detector.ChangeSnrReal();
 	}
 
 public:

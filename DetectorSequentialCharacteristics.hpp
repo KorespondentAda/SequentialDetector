@@ -57,6 +57,7 @@ private:
 		ImGui::SameLine();
 		ImGui::Checkbox("Показать расчётное ОСШ q0", &showQ0);
 		detector.ChangeSnrRange();
+		detector.ChangeSnrWait();
 		detector.ChangeBorders();
 	}
 

@@ -34,7 +34,7 @@ private:
 			for (int i = x.size(); i < a.size(); i++) {
 				x.push_back(i+1);
 			}
-			ImPlot::SetupAxes("Шаг обнаружения n", "Значение статистики z");
+			ImPlot::SetupAxes("Шаг обнаружения k", "Значение статистики z");
 			ImPlot::SetupAxisLimitsConstraints(ImAxis_X1, 1, a.size());
 			ImPlot::SetupAxisZoomConstraints(ImAxis_X1, 10, INFINITY);
 			ImPlot::SetupLegend(ImPlotLocation_East, ImPlotLegendFlags_Outside);
