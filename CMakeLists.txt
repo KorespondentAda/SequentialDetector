@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.15)
 
 set(PROJECT_NAME "SignalDetector")
 project(${PROJECT_NAME} VERSION 0.0.1)
-set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 20)
 
 find_package(OpenGL REQUIRED)
 
@@ -16,6 +16,9 @@ set(GLAD_GL "")
 add_subdirectory(glfw)
 include_directories("${GLFW_SOURCE_DIR}/deps")
 set(GLAD_GL "${GLFW_SOURCE_DIR}/deps/glad/gl.h")
+
+# Add time measurement elements
+option(SD_MEASURE_TIME "Measure characteristics modelling time" OFF)
 
 add_executable(${PROJECT_NAME} WIN32
 # My files
@@ -54,5 +57,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	${LINK_STATIC}
 )
 target_compile_definitions(${PROJECT_NAME} PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
+if (${SD_MEASURE_TIME})
+	target_compile_definitions(${PROJECT_NAME} PUBLIC "MEASURE_TIME")
+endif(${SD_MEASURE_TIME})
 add_compile_options(-Wall)
 

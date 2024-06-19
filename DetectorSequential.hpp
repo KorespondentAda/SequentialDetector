@@ -6,8 +6,16 @@
 #include <InfoSignal.hpp>
 #include <NoiseSignal.hpp>
 
+#ifdef MEASURE_TIME
+#include <chrono>
+#endif
+
 class DetectorSequential : public WindowControlled {
 private:
+#ifdef MEASURE_TIME
+	// Building time
+	std::chrono::milliseconds exTime;
+#endif // MEASURE_TIME
 	// Detection parameters
 	float qvals[3];
 	float q0;
@@ -155,6 +163,9 @@ private:
 		ChangeNMax();
 		ChangeExpCount();
 		checkConstraints();
+#ifdef MEASURE_TIME
+		ImGui::Text("Длительность построения: %.3f с", exTime.count() / 1000.0, 0, 100);
+#endif
 	}
 
 public:
@@ -207,7 +218,16 @@ public:
 	const Samples & GetBorderA() const { return as; }
 	const Samples & GetBorderB() const { return bs; }
 
-	void MakeCharacteristics() { makePlots(qvals); }
+	void MakeCharacteristics() {
+#ifdef MEASURE_TIME
+		auto start{std::chrono::steady_clock::now()};
+#endif // MEASURE_TIME
+		makePlots();
+#ifdef MEASURE_TIME
+		auto end{std::chrono::steady_clock::now()};
+		exTime = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+#endif // MEASURE_TIME
+	}
 	const Samples & GetQs() const { return qs; }
 	const Samples & GetNs() const { return ns; }
 	const Samples & GetPs() const { return ps; }
