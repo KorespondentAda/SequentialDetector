@@ -17,7 +17,7 @@ private:
 public:
 	NoiseSignal() :
 			WindowControlled("Шумовой сигнал"),
-			gen(0),
+			gen(0)
 	{}
 
 	Generator & operator()()

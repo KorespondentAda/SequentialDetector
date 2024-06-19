@@ -22,7 +22,7 @@ private:
 		auto p = detector.GetPs();
 		auto n = detector.GetNs();
 		if (ImPlot::BeginPlot("Характеристика обнаружения", ImVec2(-1,0), flags)) {
-			const ImPlotAxisFlags flags = ImPlotAxisFlags_AutoFit|ImPlotAxisFlags_RangeFit;
+			//const ImPlotAxisFlags flags = ImPlotAxisFlags_AutoFit|ImPlotAxisFlags_RangeFit;
 			ImPlot::SetupAxes("ОСШ q", "Вероятность ПО p");
 			ImPlot::SetupAxisLimitsConstraints(ImAxis_X1, 0, INFINITY);
 			ImPlot::SetupAxisLimitsConstraints(ImAxis_Y1, 0, 1);

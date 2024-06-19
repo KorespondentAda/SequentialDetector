@@ -4,11 +4,11 @@
 #include <WindowControlled.hpp>
 #include <DetectorSequential.hpp>
 
-class DetectorSequentialHistograms : public WindowControlled {
+class DetectorSequentialHistograms final : public WindowControlled {
 private:
 	DetectorSequential &detector;
-	std::vector<float> s, n, y;
 	const int count;
+	std::vector<float> s, n, y;
 
 	virtual void Setup() override
 	{
@@ -19,8 +19,6 @@ private:
 		if (watchLen > watchLenMax) watchLen = watchLenMax;
 		if (ImPlot::BeginPlot("Гистограммы")) {
 			float borders[] = {detector.GetBorderA()[watchLen-1], detector.GetBorderB()[watchLen-1]};
-			// TODO Как подписать оси гистограмм?
-			//ImPlot::SetupAxes("Абциссы", "Ординаты");
 			ImPlot::SetupAxisLimitsConstraints(ImAxis_Y1, 0, INFINITY);
 			ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.5f);
 			ImPlot::PushStyleVar(ImPlotStyleVar_LineWeight, 0.5f);

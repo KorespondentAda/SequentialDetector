@@ -18,14 +18,14 @@ private:
 			auto a = detector.GetBorderA();
 			auto b = detector.GetBorderB();
 			assert(a.size() == b.size());
-			for (int i = x.size(); i < a.size(); i++) {
+			for (size_t i = x.size(); i < a.size(); i++) {
 				x.push_back(i+1);
 			}
 			ImPlot::SetupAxes("Шаг обнаружения k", "Значение статистики z");
 			ImPlot::SetupAxisLimitsConstraints(ImAxis_X1, 1, a.size());
 			ImPlot::SetupAxisZoomConstraints(ImAxis_X1, 10, INFINITY);
 			ImPlot::SetupLegend(ImPlotLocation_East, ImPlotLegendFlags_Outside);
-			for (int i = 0; i < s.size(); i++) {
+			for (size_t i = 0; i < s.size(); i++) {
 				ImPlot::SetNextMarkerStyle(ImPlotMarker_Circle);
 				ImPlot::PlotLine(names[i].c_str(), x.data(), s[i].data(), s[i].size());
 			}

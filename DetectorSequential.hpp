@@ -83,6 +83,7 @@ private:
 		float σ = sqrt(n().GetEnergy());
 		float A = logf((1 - β) / α) * σ / q0;
 		float B = logf(β / (1 - α)) * σ / q0;
+		// q0 * σ / 2
 		float borderStep = q0 / (2 * σ);
 		for (int i = 0; i < nmax; i++) {
 			A += borderStep;
@@ -132,7 +133,7 @@ private:
 	{
 		float qmin = 0.001;
 		float pmin = 0.001;
-		if (qvals[0] < qmin) qvals[0] = qmin;
+		if (qvals[0] < 0) qvals[0] = 0;
 		if (qvals[1] < qmin) qvals[1] = qmin;
 		if (qvals[2] < qmin) qvals[2] = qmin;
 		if (q0 < qmin) q0 = qmin;
@@ -147,8 +148,6 @@ private:
 
 	void Setup() override
 	{
-		int length = qs.size();
-
 		ImGui::SeparatorText("Сигнал");
 		s.Show("Сигнал", true);
 		ImGui::SeparatorText("Шум");
@@ -169,21 +168,13 @@ public:
 	using Samples = std::vector<float>;
 
 	DetectorSequential() : WindowControlled("Последовательный обнаружитель"),
-			meanCount(0),
-			meanDetects(0),
-			as(0),
-			bs(0),
-			zs(0),
+			qvals{0.0, 0.05, 3.0},
 			q0(1),
 			q(q0),
 			α(0.01),
 			β(0.01),
 			nmax(50),
-			expCount(5000),
-			qs(0),
-			ns(0),
-			ps(0),
-			qvals{0.1, 0.5, 3.0}
+			expCount(5000)
 	{}
 
 	int GetNMax() const { return nmax; }

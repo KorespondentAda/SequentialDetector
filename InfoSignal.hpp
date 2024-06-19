@@ -20,7 +20,7 @@ private:
 public:
 	InfoSignal() :
 			WindowControlled("Обнаруживаемый сигнал"),
-			gen(1),
+			gen(1)
 	{}
 
 	Generator & operator()()
