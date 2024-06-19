@@ -24,7 +24,7 @@ public:
 
 	Generator & operator()()
 	{
-		return gen.GetGenerator();
+		return gen();
 	}
 };
 

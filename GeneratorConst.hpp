@@ -14,23 +14,23 @@ public:
 			amplitude(amplitude)
 	{}
 
-	virtual std::vector<float> Generate(std::vector<float> t) override
+	std::vector<float> Generate(std::vector<int> k) override
 	{
-		std::vector<float> result(t.size(), amplitude);
+		std::vector<float> result(k.size(), amplitude);
 		return result;
 	}
 
-	virtual bool Configure() override
+	bool Configure() override
 	{
 		return ImGui::SliderFloat("Амплитуда", &amplitude, 0, 10);
 	}
 
-	virtual void SetEnergy(float E) override
+	void SetEnergy(float E) override
 	{
 		amplitude = sqrt(E);
 	}
 
-	virtual float GetEnergy() const override
+	float GetEnergy() const override
 	{
 		return amplitude * amplitude;
 	}

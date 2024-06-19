@@ -43,17 +43,16 @@ public:
 			case 0: // Random signal
 				switch (choosen) {
 					case 0: return gen_0_0; // Gaussian distribution
+					default: throw;
 				}
-				break;
 			case 1: // Determined signal
 				switch (choosen) {
 					case 0: return gen_1_0; // Constant signal
 					case 1: return gen_1_1; // Sine wave
+					default: throw;
 				}
-				break;
+			default: throw; // Default way - error
 		}
-		// Default way - error
-		return gen_1_0;
 	}
 
 	bool Selector(const char *title)
@@ -65,11 +64,6 @@ public:
 	bool Configure()
 	{
 		return GetGenerator().Configure();
-	}
-
-	float Generate(float t)
-	{
-		return GetGenerator().Generate(t);
 	}
 
 	Generator & operator()()

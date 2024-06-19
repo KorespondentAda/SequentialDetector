@@ -16,18 +16,14 @@ public:
 	virtual void SetEnergy(float E) = 0;
 	virtual float GetEnergy() const = 0;
 
-	virtual std::vector<float> Generate(std::vector<float> time) = 0;
-	virtual float Generate(float t)
+	virtual std::vector<float> Generate(std::vector<int> ids) = 0;
+	virtual std::vector<float> Generate(int n, float start = 0)
 	{
-		return Generate(std::vector<float>(1, t))[0];
-	}
-	virtual std::vector<float> Generate(int n, float ts, float tstart = 0)
-	{
-		std::vector<float> times(n);
+		std::vector<int> ids(n);
 		for (int i = 0; i < n; i++) {
-			times[i] = i * ts + tstart;
+			ids[i] = i + start;
 		}
-		return Generate(times);
+		return Generate(ids);
 	}
 };
 

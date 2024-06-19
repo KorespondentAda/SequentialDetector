@@ -47,14 +47,12 @@ private:
 		if (rec) {
 			zs.clear();
 		}
+		auto sp = s().Generate(nmax);
+		auto np = n().Generate(nmax);
 		for (int i = 0; i < nmax; i++) {
-			float sp = s().Generate(t);
-			float np = n().Generate(t);
-			float y = sp + np;
+			float y = sp[i] + np[i];
 			// TODO Calculate in case of other noises
-			float z = y;
-			t += time_step;
-			Z += z;
+			Z += calcStat(y);
 			if (rec) {
 				zs.push_back(Z);
 			}
@@ -113,7 +111,9 @@ private:
 		s().SetEnergy(E);
 	}
 
-	void makePlots(float qvals[3])
+	float calcStat(float y) const { return y; }
+
+	void makePlots()
 	{
 		genQList(qvals[0], qvals[1], qvals[2]);
 		genBorders();
@@ -204,7 +204,7 @@ public:
 	}
 
 	void MakeStats() { genBorders(); detect<true>(); }
-	const Samples & GetStats() { return zs; }
+	const Samples & GetStats() const { return zs; }
 	const Samples & GetBorderA()
 	{
 		if (as.empty() || bs.empty()) genBorders();

@@ -20,16 +20,16 @@ public:
 #endif
 	{}
 
-	virtual std::vector<float> Generate(std::vector<float> t) override
+	std::vector<float> Generate(std::vector<int> k) override
 	{
-		std::vector<float> result(t);
+		std::vector<float> result(k.size());
 		for (auto &el : result) {
 			el = randn(gen);
 		}
 		return result;
 	}
 
-	virtual bool Configure() override
+	bool Configure() override
 	{
 		bool changed = false;
 		changed |= ImGui::SliderFloat("Среднее", &μ, -5, 5);
@@ -41,12 +41,12 @@ public:
 		return changed;
 	}
 
-	virtual void SetEnergy(float E) override
+	void SetEnergy(float E) override
 	{
 		σ = sqrt(E);
 	}
 
-	virtual float GetEnergy() const override
+	float GetEnergy() const override
 	{
 		return σ * σ;
 	}

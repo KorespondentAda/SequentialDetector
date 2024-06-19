@@ -18,16 +18,16 @@ public:
 			phase(phase)
 	{}
 
-	virtual std::vector<float> Generate(std::vector<float> t) override
+	std::vector<float> Generate(std::vector<int> k) override
 	{
-		std::vector<float> result(t);
-		auto l = std::transform(t.cbegin(), t.cend(), result.begin(), [this](float t){
-				return amplitude * cos(frequency * 2 * 3.14 * t + (3.14 * phase / 180));
-		});
+		std::vector<float> result(k.size());
+		for (size_t idx = 0; idx < k.size(); idx++) {
+			result[idx] = amplitude * cos(frequency * 2 * 3.14 * 0.001 * k[idx] + (3.14 * phase / 180));
+		}
 		return result;
 	}
 
-	virtual bool Configure() override
+	bool Configure() override
 	{
 		bool changed = false;
 		changed |= ImGui::SliderFloat("Частота", &frequency, 0, 1e+6,
@@ -37,12 +37,12 @@ public:
 		return changed;
 	}
 
-	virtual void SetEnergy(float E) override
+	void SetEnergy(float E) override
 	{
 		amplitude = 4 * sqrt(E);
 	}
 
-	virtual float GetEnergy() const override
+	float GetEnergy() const override
 	{
 		return amplitude * amplitude / 4;
 	}
