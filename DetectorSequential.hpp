@@ -156,12 +156,10 @@ private:
 		n.Show("Шум", true);
 		q = sqrt(s().GetEnergy() / n().GetEnergy());
 		ImGui::SeparatorText("Обнаружитель");
-		ChangeSnrRange();
 		ChangeSnrWait();
 		ChangeSnrReal();
 		ChangeBorders();
 		ChangeNMax();
-		ChangeExpCount();
 		checkConstraints();
 #ifdef MEASURE_TIME
 		ImGui::Text("Длительность построения: %.3f с", exTime.count() / 1000.0, 0, 100);
@@ -255,9 +253,9 @@ public:
 	void ChangeBorders()
 	{
 		bool bordersChanged = ImGui::SliderFloat("Вероятность ЛТ", &α,
-				0.001f, 1, "%.3f", ImGuiSliderFlags_Logarithmic);
+				0.01f, 1, "%.2f", ImGuiSliderFlags_Logarithmic);
 		bordersChanged |= ImGui::SliderFloat("Вероятность ПС", &β,
-				0.001f, 1, "%.3f", ImGuiSliderFlags_Logarithmic);
+				0.01f, 1, "%.2f", ImGuiSliderFlags_Logarithmic);
 		if (bordersChanged) genBorders();
 	}
 	void ChangeNMax()

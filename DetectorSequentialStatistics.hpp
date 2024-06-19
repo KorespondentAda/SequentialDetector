@@ -14,19 +14,6 @@ private:
 		static std::vector<float> x(0);
 		static std::vector<std::string> names(0);
 		static int statCount = 0;
-		if (ImGui::Button("Построить")) {
-			detector.MakeStats();
-			auto stat = detector.GetStats();
-			s.push_back(stat);
-			names.push_back("Стат." + std::to_string(++statCount));
-		}
-		ImGui::SameLine();
-		if (ImGui::Button("Очистить")) {
-			s.clear();
-			names.clear();
-			statCount = 0;
-			// TODO Clear line disabling
-		}
 		if (ImPlot::BeginPlot("##Статистика")) {
 			auto a = detector.GetBorderA();
 			auto b = detector.GetBorderB();
@@ -48,8 +35,19 @@ private:
 			ImPlot::PlotLine("##Нижний порог", x.data(), b.data(), b.size());
 			ImPlot::EndPlot();
 		}
-		const float q0 = detector.GetSnr();
-		static float q = q0;
+		if (ImGui::Button("Построить")) {
+			detector.MakeStats();
+			auto stat = detector.GetStats();
+			s.push_back(stat);
+			names.push_back(std::to_string(++statCount));
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Очистить")) {
+			s.clear();
+			names.clear();
+			statCount = 0;
+			// TODO Clear line disabling
+		}
 		detector.ChangeSnrReal();
 		detector.ChangeBorders();
 	}

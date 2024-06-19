@@ -28,7 +28,11 @@ private:
 			ImPlot::SetupAxisLimitsConstraints(ImAxis_Y1, 0, 1);
 			if (!calcFuture.valid())
 				ImPlot::PlotLine("Вероятность обнаружения", q.data(), p.data(), q.size());
-			if (showQ0) ImPlot::TagX(q0, ImVec4(1,1,0,1), "q0: %0.1f", q0);
+			if (showQ0) {
+				ImPlot::TagX(q0, ImVec4(1,1,0,1), "q0: %0.1f", q0);
+				ImPlot::SetNextLineStyle(IMPLOT_AUTO_COL, 3.0f);
+				ImPlot::PlotInfLines("q0", &q0, 1);
+			}
 			ImPlot::EndPlot();
 		}
 		if (ImPlot::BeginPlot("Объём выборки", ImVec2(-1,0), flags)) {
@@ -37,7 +41,11 @@ private:
 			ImPlot::SetupAxisLimitsConstraints(ImAxis_Y1, 0, INFINITY);
 			if (!calcFuture.valid())
 				ImPlot::PlotLine("Средний объём", q.data(), n.data(), q.size());
-			if (showQ0) ImPlot::TagX(q0, ImVec4(1,1,0,1), "q0: %0.1f", q0);
+			if (showQ0) {
+				ImPlot::TagX(q0, ImVec4(1,1,0,1), "q0: %0.1f", q0);
+				ImPlot::SetNextLineStyle(IMPLOT_AUTO_COL, 3.0f);
+				ImPlot::PlotInfLines("q0", &q0, 1);
+			}
 			ImPlot::EndPlot();
 		}
 		if (calcFuture.valid()) {
@@ -57,6 +65,7 @@ private:
 		ImGui::SameLine();
 		ImGui::Checkbox("Показать расчётное ОСШ q0", &showQ0);
 		detector.ChangeSnrRange();
+		detector.ChangeExpCount();
 		detector.ChangeSnrWait();
 		detector.ChangeBorders();
 	}

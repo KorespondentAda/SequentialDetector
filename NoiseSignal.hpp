@@ -11,7 +11,7 @@ private:
 	virtual void Setup() override
 	{
 		ImGui::TextWrapped("Установка вида шумового фона обнаруживаемого сигнала");
-		gen.Selector("Вид сигнала");
+		gen.Selector("Вид распределения шума");
 		gen.Configure();
 	}
 
