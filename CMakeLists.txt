@@ -4,6 +4,8 @@ set(PROJECT_NAME "SignalDetector")
 project(${PROJECT_NAME} VERSION 0.0.1)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_FLAGS "-Wall -Wextra")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 find_package(OpenGL REQUIRED)
 
