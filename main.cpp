@@ -117,7 +117,7 @@ int main()
 	// Init ImGui things
 	ImGui::CreateContext();
 	ImPlot::CreateContext();
-	ImGui::StyleColorsDark();
+	ImGui::StyleColorsLight();
 	ImGui_ImplGlfw_InitForOpenGL(win, true);
 	ImGui_ImplOpenGL3_Init(nullptr);
 	ImGuiIO &io = ImGui::GetIO();
@@ -139,7 +139,7 @@ int main()
 		int dispW, dispH;
 		glfwGetFramebufferSize(win, &dispW, &dispH);
 		glViewport(0, 0, dispW, dispH);
-		glClearColor(0.3f, 0.1f, 0.5f, 1.0f);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(win);
