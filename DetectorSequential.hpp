@@ -24,7 +24,6 @@ private:
 	float β;
 	int nmax;
 	int expCount;
-	const float time_step;
 
 	// Signal sources
 	InfoSignal s;
@@ -43,7 +42,7 @@ private:
 	template<bool rec = false>
 	int detect()
 	{
-		float t = 0, Z = 0;
+		float Z = 0;
 		if (rec) {
 			zs.clear();
 		}
@@ -170,9 +169,6 @@ public:
 	using Samples = std::vector<float>;
 
 	DetectorSequential() : WindowControlled("Последовательный обнаружитель"),
-			time_step(0.001),
-			s(time_step),
-			n(time_step),
 			meanCount(0),
 			meanDetects(0),
 			as(0),
@@ -194,11 +190,11 @@ public:
 
 	Samples GetNoise(int count)
 	{
-		return n().Generate(count, time_step);
+		return n().Generate(count);
 	}
 	Samples GetSignal(int count)
 	{
-		return s().Generate(count, time_step);
+		return s().Generate(count);
 	}
 
 	void MakeStats() { genBorders(); detect<true>(); }

@@ -6,7 +6,6 @@
 class NoiseSignal : public WindowControlled {
 private:
 	SignalGenerator gen;
-	const float time_step;
 
 	virtual void Setup() override
 	{
@@ -16,10 +15,9 @@ private:
 	}
 
 public:
-	NoiseSignal(float tstep = 0.001) :
+	NoiseSignal() :
 			WindowControlled("Шумовой сигнал"),
 			gen(0),
-			time_step(tstep)
 	{}
 
 	Generator & operator()()

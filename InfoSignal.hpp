@@ -9,7 +9,6 @@
 class InfoSignal : public WindowControlled {
 private:
 	SignalGenerator gen;
-	const float time_step;
 
 	virtual void Setup() override
 	{
@@ -19,10 +18,9 @@ private:
 	}
 
 public:
-	InfoSignal(float tstep = 0.001) :
+	InfoSignal() :
 			WindowControlled("Обнаруживаемый сигнал"),
 			gen(1),
-			time_step(tstep)
 	{}
 
 	Generator & operator()()
