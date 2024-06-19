@@ -34,6 +34,7 @@ private:
 			s = detector.GetSignal(count);
 			n = detector.GetNoise(count);
 			for (int i = 0; i < count; i++) {
+				n[i] *= std::sqrt(watchLen);
 				y[i] = watchLen * s[i] + n[i];
 			}
 		}
