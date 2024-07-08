@@ -39,11 +39,16 @@ void SetNavID(ImGuiID id)
 
 }
 
-//static bool running;
 // Presumably it's called after GLFW initialization
-//extern "C" void sighandler(int sig) {
-//	running = false;
-//}
+GLFWwindow *win = nullptr;
+void sighandler_SIGINT(int sig) noexcept {
+	std::cerr << "Signal handling: " << (sig == SIGINT ? "SIGINT" : "UNKNOWN")
+			<< std::endl;
+	if (win != nullptr)
+		glfwSetWindowShouldClose(win, GLFW_TRUE);
+	else
+		std::cerr << "Signal comes without window presence!" << std::endl;
+}
 
 void glfwErrorCallBack(
 		int errCode,
@@ -73,7 +78,7 @@ void init()
 	}
 
 	// Setup UNIX signal handlers
-	//std::signal(SIGINT, sighandler);
+	std::signal(SIGINT, sighandler_SIGINT);
 }
 
 void term()
@@ -102,7 +107,7 @@ int main()
 	// Make window floating
 	glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
 	glfwWindowHintString(GLFW_X11_CLASS_NAME, CLASS_NAME);
-	GLFWwindow *win = glfwCreateWindow(
+	win = glfwCreateWindow(
 			WIN_WIDTH,
 			WIN_HEIGTH,
 			WIN_NAME,
@@ -152,6 +157,7 @@ int main()
 	ImGui::DestroyContext();
 
 	glfwDestroyWindow(win);
+	win = nullptr;
 	term();
 
 	std::cerr << "Program ended!" << std::endl;
