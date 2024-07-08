@@ -96,6 +96,7 @@ private:
 		ImGui::Checkbox("Показать расчётное ОСШ q0", &showQ0);
 		if (calcFuture.valid()) {
 			ImGui::BeginDisabled();
+		}
 		if (saveDialog.Display("SaveCharacteristics",
 					ImGuiWindowFlags_NoCollapse)) {
 			if (saveDialog.IsOk()) {
