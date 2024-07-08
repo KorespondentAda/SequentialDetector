@@ -1,12 +1,16 @@
 #pragma once
 
+#include <fstream>
+#include <algorithm>
 #include <WindowControlled.hpp>
 #include <DetectorSequential.hpp>
 #include <implot.h>
+#include <ImGuiFileDialog.h>
 
-class DetectorSequentialStatistics : public WindowControlled {
+class DetectorSequentialStatistics final : public WindowControlled {
 private:
 	DetectorSequential &detector;
+	IGFD::FileDialog saveDialog;
 
 	virtual void Setup() override
 	{
@@ -14,6 +18,7 @@ private:
 		static std::vector<float> x(0);
 		static std::vector<std::string> names(0);
 		static int statCount = 0;
+		static std::string noValue{"NaN"};
 		if (ImPlot::BeginPlot("##Статистика")) {
 			auto a = detector.GetBorderA();
 			auto b = detector.GetBorderB();
@@ -48,8 +53,54 @@ private:
 			statCount = 0;
 			// TODO Clear line disabling
 		}
+		ImGui::SameLine();
+		if (statCount == 0) {
+			ImGui::BeginDisabled();
+		}
+		if (ImGui::Button("Сохранить...")) {
+			saveDialog.OpenDialog(
+					"SaveStatistics",
+					"Сохранить статистики",
+					".csv",
+					{
+						.path = ".",
+						.fileName = "stats.csv",
+						.filePathName = {},
+						.sidePane = {},
+						.userFileAttributes = {}
+					}
+					);
+		}
+		if (statCount == 0) {
+			ImGui::EndDisabled();
+		}
 		detector.ChangeSnrReal();
 		detector.ChangeBorders();
+		if (saveDialog.Display("SaveStatistics")) {
+			if (saveDialog.IsOk()) {
+				auto selectedFilePathName = saveDialog.GetFilePathName();
+				std::ofstream of(selectedFilePathName);
+				of << "k";
+				std::vector<size_t> sizes(statCount);
+				for (int i = 0; i < statCount; i++) {
+					of << ",s" << i + 1;
+					sizes[i] = s[i].size();
+				}
+				of << std::endl;
+				for (size_t i = 0; i < *std::max_element(sizes.begin(), sizes.end()); i++) {
+					of << i+1;
+					for (int j = 0; j < statCount; j++) {
+						of << ",";
+						if (i < sizes[j])
+							of << s[j][i];
+						else
+							of << noValue;
+					}
+					of << std::endl;
+				}
+			}
+			saveDialog.Close();
+		}
 	}
 
 public:

@@ -1,14 +1,17 @@
 #pragma once
 
 #include <vector>
+#include <fstream>
 #include <WindowControlled.hpp>
 #include <DetectorSequential.hpp>
+#include <ImGuiFileDialog.h>
 
 class DetectorSequentialHistograms final : public WindowControlled {
 private:
 	DetectorSequential &detector;
 	const int count;
 	std::vector<float> s, n, y;
+	IGFD::FileDialog saveDialog;
 
 	virtual void Setup() override
 	{
@@ -39,10 +42,35 @@ private:
 			}
 		}
 		ImGui::SameLine();
+		if (ImGui::Button("Сохранить...")) {
+			saveDialog.OpenDialog(
+					"SaveHistograms",
+					"Сохранить точки",
+					".csv",
+					{
+						.path = ".",
+						.fileName = "samples.csv",
+						.filePathName = {},
+						.sidePane = {},
+						.userFileAttributes = {}
+					}
+					);
+		}
 		ImGui::Checkbox("Перестраивать автоматически", &online);
 		ImGui::SliderInt("Число карманов", &bins, 10, 100);
 		ImGui::SliderInt("Шаг обнаружения", &watchLen, 1, watchLenMax);
 		detector.ChangeSnrReal();
+		if (saveDialog.Display("SaveHistograms")) {
+			if (saveDialog.IsOk()) {
+				auto selectedFilePathName = saveDialog.GetFilePathName();
+				std::ofstream of(selectedFilePathName);
+				of << "noise,signal" << std::endl;
+				for (size_t i = 0; i < n.size(); i++) {
+					of << n[i] << ',' << s[i] << std::endl;
+				}
+			}
+			saveDialog.Close();
+		}
 	}
 
 public:
