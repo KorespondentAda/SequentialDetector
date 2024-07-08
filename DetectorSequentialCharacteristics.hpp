@@ -64,10 +64,16 @@ private:
 		}
 		ImGui::SameLine();
 		ImGui::Checkbox("Показать расчётное ОСШ q0", &showQ0);
+		if (calcFuture.valid()) {
+			ImGui::BeginDisabled();
+		}
 		detector.ChangeSnrRange();
 		detector.ChangeExpCount();
 		detector.ChangeSnrWait();
 		detector.ChangeBorders();
+		if (calcFuture.valid()) {
+			ImGui::EndDisabled();
+		}
 	}
 
 public:
