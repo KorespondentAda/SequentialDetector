@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.16)
 
 set(PROJECT_NAME "SignalDetector")
 project(${PROJECT_NAME} VERSION 0.0.1)
@@ -17,6 +17,12 @@ set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "GLFW for X11 only")
 set(GLAD_GL "")
 add_subdirectory(glfw)
 set(GLAD_GL "${GLFW_SOURCE_DIR}/deps/glad/gl.h")
+
+# ImGuiFileDialog including
+add_subdirectory(imgui-file-dialog)
+# Specify ImGui includes
+target_include_directories(ImGuiFileDialog PRIVATE ${CMAKE_SOURCE_DIR}/imgui ${CMAKE_SOURCE_DIR})
+target_compile_definitions(ImGuiFileDialog PUBLIC "CUSTOM_IMGUIFILEDIALOG_CONFIG=<FileDialogConfig.hpp>")
 
 # Add time measurement elements
 option(SD_MEASURE_TIME "Measure characteristics modelling time" OFF)
@@ -55,6 +61,7 @@ endif(WIN32)
 target_link_libraries(${PROJECT_NAME} PRIVATE
 	OpenGL::GL
 	glfw
+	ImGuiFileDialog
 	${LINK_STATIC}
 )
 target_compile_definitions(${PROJECT_NAME} PRIVATE "$<$<CONFIG:Debug>:DEBUG>")
