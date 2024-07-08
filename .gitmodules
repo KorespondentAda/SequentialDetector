@@ -7,3 +7,6 @@
 [submodule "glfw"]
 	path = glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "ImGuiFileDialog"]
+	path = imgui-file-dialog
+	url = https://github.com/aiekick/ImGuiFileDialog.git
