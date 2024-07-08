@@ -7,7 +7,7 @@
 #include <imgui.h>
 #include <implot.h>
 
-class DetectorSequentialCharacteristics : public WindowControlled {
+class DetectorSequentialCharacteristics final : public WindowControlled {
 private:
 	DetectorSequential &detector;
 	std::future<void> calcFuture;
