@@ -16,7 +16,6 @@ set(GLFW_LIBRARY_TYPE "STATIC")
 set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "GLFW for X11 only")
 set(GLAD_GL "")
 add_subdirectory(glfw)
-include_directories("${GLFW_SOURCE_DIR}/deps")
 set(GLAD_GL "${GLFW_SOURCE_DIR}/deps/glad/gl.h")
 
 # Add time measurement elements
